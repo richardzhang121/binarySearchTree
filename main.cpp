@@ -11,7 +11,6 @@ void strToLower(char* a);
 void addNode(Node* head, int number);
 void printTree(Node* head, int level);
 Node* nodeSearch (Node* head, int number, Node* &parent, bool &right);
-bool deleteNode(Node* &head, int number);
 
 int main(){
   
@@ -138,46 +137,4 @@ Node* nodeSearch(Node* head, int number, Node* &parent, bool &right){
     else return NULL;
   }
   else return head;
-}
-bool deleteNode(Node* &head, int number){
-  Node* parent;
-  Node* dNode;
-  bool right;
-  Node* toSwap = NULL;
-  dNode = nodeSearch(head,number,parent,right);
-  if (!dNode){
-    return false;
-  }
-  if (!dNode->getLeft() && !dNode->getRight()){
-    toSwap = NULL;
-  }
-  else if(!dNode->getRight()){
-    toSwap = dNode->getLeft();
-  }
-  else if(!dNode->getLeft()){
-    toSwap = dNode->getRight();
-  }
-  else if(!dNode->getLeft()->getRight()){
-    Node* current = dNode->getLeft();
-    current->setRight(dNode->getRight());
-    toSwap = current;
-  }
-  else{
-    Node* leftRoot = dNode->getLeft();
-    Node* current = dNode->getLeft()->getRight();
-    Node* currentParent = leftRoot;
-    while(current->getRight()){
-      currentParent = current;
-      current = current->getRight();
-    }
-    currentParent->setRight(NULL);
-    current->setLeft(leftRoot);
-    current->setRight(dNode->getRight());
-    toSwap = current; 
-  
-  }
-  if(head == dNode) head = toSwap;
-  else if(right) parent->setRight(toSwap);
-  else parent->setLeft(toSwap);
-  return true;
 }
