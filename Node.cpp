@@ -28,7 +28,7 @@ Node::Node(int number){
 }
 
 Node::Node(){
-    cout << "Data for new node?" << endl;
+    cout << "What do you want to input in your node?" << endl;
     cin >> data;
 }
 
