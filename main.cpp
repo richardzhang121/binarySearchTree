@@ -1,4 +1,3 @@
-//Richard Zhang Binary Search Tree
 //search tree for integers
 
 #include <iostream>
@@ -42,38 +41,22 @@ int main(){
     }
     else if(!strcmp(input,"search")){
       if (head){
-	cout << "What number are you looking for?" << endl;
-	int number;
-	Node* parent;
-	bool right;
-	cin >> number;
-	if (nodeSearch(head,number,parent,right)){
-	  cout << number << " is in the tree" << endl;
-	}
-	else{
-	  cout << number << " is not in the tree" << endl;
-	}
-      }
-      else{
-	cout << "You cant search an empty tree!" << endl;
-      }
-    }
-    else if(!strcmp(input,"delete")){
-      if (head){
-        cout << "What number are you looking for?" << endl;
-        int number;
-	cin >> number;
-	if (deleteNode(head,number)){
-	  cout << number << " Has been deleted" << endl;
-        }
-        else{
-          cout << number << " is not in the tree" << endl;
-        }
-      }
-      else{
-        cout << "You can't delete a node from an empty tree!" << endl;
-      } 
-    }	   
+      	cout << "What number are you looking for?" << endl;
+      	int number;
+      	Node* parent;
+      	bool right;
+      	cin >> number;
+      	if (nodeSearch(head,number,parent,right)){
+      	  cout << number << " is in the tree" << endl;
+      	}
+      	else{
+      	  cout << number << " is not in the tree" << endl;
+      	}
+            }
+            else{
+      	cout << "You cant search an empty tree!" << endl;
+            }
+          }
     else{
       cout << "I don't know what you mean" << endl;
       cin.clear();
