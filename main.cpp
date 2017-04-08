@@ -1,15 +1,60 @@
-//search tree for integers
+//Richard Zhang P.7
+//Binary Search Tree
 
 #include <iostream>
 #include <cstring>
+#include <fstream>
 #include "Node.h"
+
 
 using namespace std;
 
 void strToLower(char* a);
-void addNode(Node* head, int number);
-void printTree(Node* head, int level);
-Node* nodeSearch (Node* head, int number, Node* &parent, bool &right);
+void addNode(Node* head, int number, Node* &treeHead); // Number added to tree
+void printTree(Node* head, int level); //prints the tree
+Node* nodeSearch (Node* head, int number, Node* &parent, bool &right); //Value in tree and returns 
+bool deleteNode(Node* &head, int number); //Deletes the node
+
+void configureInput(ifstream &stream, bool &isFile){
+  //take input from text or from a file
+  
+  char input[128];
+  isFile = false;
+  
+  cout << "Do you want to 1) read from a file or 2) from a text" << endl;
+  cin.getline(input,128);
+  strToLower(input);
+  
+  if(input[0] == '1'){
+    cout << "What is the file" << endl;
+    cin.getline(input,128);
+    stream.open(input);
+    if(stream.is_open()){
+      isFile = true;
+    }
+    else{
+      cout << "The file could not be opened. Please enter through the command line" << endl;
+    }
+  }
+  else{
+    cout << "Please enter through the command line" << endl;
+  }
+}
+void addNumbers(istream &from, Node* &head){
+  //goes through a stream and adds them to the tree
+  int newInput;
+  from >> newInput;
+  addNode(head,newInput,head);
+  while(from.peek() != '\n' && !from.eof()){
+    if(isdigit(from.peek())){
+      from >> newInput;
+      addNode(head,newInput,head);
+    }
+    else{
+      from.ignore();
+    }
+  }
+}
 
 int main(){
   
@@ -18,50 +63,60 @@ int main(){
   char input[30];
 
   while (running == true){
-    cin.get(input,30);
+    cin.getline(input,30);
     strToLower(input);
     if (!strcmp(input,"add")){
-      if (head == NULL){
-	head = new Node();
-      }
-      else{
-	cout << "Data for New Node?" << endl;
-	int number;
-	cin >> number;
-	addNode(head,number);
-	  
-      }
+      ifstream stream;
+      bool isFile;
+      configureInput(stream, isFile);
+      addNumbers(isFile ? stream : cin, head);
+      if(isFile) stream.close();
+      cin.ignore();
     }
     else if (!strcmp(input,"print")){
       if(head){
 	printTree(head,0);
       }
       else
-	cout << "Nothing to print" << endl;
+	cout << "There is nothing to print" << endl;
     }
     else if(!strcmp(input,"search")){
       if (head){
-      	cout << "What number are you looking for?" << endl;
-      	int number;
-      	Node* parent;
-      	bool right;
-      	cin >> number;
-      	if (nodeSearch(head,number,parent,right)){
-      	  cout << number << " is in the tree" << endl;
-      	}
-      	else{
-      	  cout << number << " is not in the tree" << endl;
-      	}
-            }
-            else{
-      	cout << "You cant search an empty tree!" << endl;
-            }
-          }
-    else{
-      cout << "I don't know what you mean" << endl;
-      cin.clear();
+	cout << "What number are you looking for?" << endl;
+	int number;
+	Node* parent;
+	bool right;
+	cin >> number;
+	if (nodeSearch(head,number,parent,right)){
+	  cout << number << " is in the tree" << endl;
+	}
+	else{
+	  cout << number << " is not in the tree" << endl;
+	}
+      }
+      else{
+	cout << "You can't search an empty tree." << endl;
+      }
     }
-    cin.ignore();
+    else if(!strcmp(input,"delete")){
+      if (head){
+        cout << "What number are you looking for?" << endl;
+        int number;
+	cin >> number;
+	if (deleteNode(head,number)){
+	  cout << number << " has been deleted" << endl;
+        }
+        else{
+          cout << number << " is not in the tree" << endl;
+        }
+      }
+      else{
+        cout << "You can't delete a node from an empty tree" << endl;
+      } 
+    }	   
+    else{
+      cout << "Please input ADD, SEARCH, DELETE" << endl;
+    }
   }
 } 
 
@@ -71,18 +126,21 @@ void strToLower(char* a){ //converts words to lower
     a++;
   }
 }
-void addNode(Node* head, int number){
-  if (number < head->getData()){
+void addNode(Node* head, int number, Node* &treeHead){
+  if (treeHead == NULL){
+    treeHead = new Node(number);
+  }
+  else if (number < head->getData()){
     if (head->getLeft()){
-      addNode(head->getLeft(),number);
+      addNode(head->getLeft(),number,treeHead);
     }
     else{
       head->setLeft(new Node(number));
     }
   }
-  if (number > head->getData()){
+  else if (number > head->getData()){
     if (head->getRight()){
-      addNode(head->getRight(),number);
+      addNode(head->getRight(),number,treeHead);
     }
     else{
       head->setRight(new Node(number));
@@ -120,4 +178,46 @@ Node* nodeSearch(Node* head, int number, Node* &parent, bool &right){
     else return NULL;
   }
   else return head;
+}
+bool deleteNode(Node* &head, int number){
+  Node* parent;
+  Node* dNode;
+  bool right;
+  Node* toSwap = NULL;
+  dNode = nodeSearch(head,number,parent,right);
+  if (!dNode){
+    return false;
+  }
+  if (!dNode->getLeft() && !dNode->getRight()){
+    toSwap = NULL;
+  }
+  else if(!dNode->getRight()){
+    toSwap = dNode->getLeft();
+  }
+  else if(!dNode->getLeft()){
+    toSwap = dNode->getRight();
+  }
+  else if(!dNode->getLeft()->getRight()){
+    Node* current = dNode->getLeft();
+    current->setRight(dNode->getRight());
+    toSwap = current;
+  }
+  else{
+    Node* leftRoot = dNode->getLeft();
+    Node* current = dNode->getLeft()->getRight();
+    Node* currentParent = leftRoot;
+    while(current->getRight()){
+      currentParent = current;
+      current = current->getRight();
+    }
+    currentParent->setRight(current->getLeft());
+    current->setLeft(leftRoot);
+    current->setRight(dNode->getRight());
+    toSwap = current; 
+  
+  }
+  if(head == dNode) head = toSwap;
+  else if(right) parent->setRight(toSwap);
+  else parent->setLeft(toSwap);
+  return true;
 }
